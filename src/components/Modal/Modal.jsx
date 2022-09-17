@@ -1,34 +1,34 @@
-import { Component } from 'react';
+import { useEffect } from 'react';
 import style from './Modal.module.css';
 
-class Modal extends Component {
-  componentDidMount() {
-    window.addEventListener('keydown', this.handleChangeModal);
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('keydown', this.handleChangeModal);
-  }
-
-  handleChangeModal = e => {
+const Modal = ({ onClose, children }) => {
+  const handleChangeModal = e => {
     if (e.code === 'Escape') {
-      this.props.onClose();
+      onClose();
     }
   };
 
-  handleCloseBackdrop = e => {
+  const handleCloseBackdrop = e => {
     if (e.target === e.currentTarget) {
-      this.props.onClose();
+      onClose();
     }
   };
 
-  render() {
-    return (
-      <div className={style.overlay} onClick={this.handleCloseBackdrop}>
-        <div className={style.modal}>{this.props.children}</div>
-      </div>
-    );
-  }
-}
+  useEffect(() => {
+    
+    window.addEventListener('keydown', handleChangeModal);
+
+    return () => {
+      window.removeEventListener('keydown', handleChangeModal);
+    };
+    // eslint-disable-next-line
+  }, []);
+
+  return (
+    <div className={style.overlay} onClick={handleCloseBackdrop}>
+      <div className={style.modal}>{children}</div>
+    </div>
+  );
+};
 
 export default Modal;
