@@ -1,0 +1,29 @@
+.searchbar {
+  text-align: center;
+  background-color: rgb(120, 6, 133);
+  padding: 20px;
+
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+.input {
+  min-width: 250px;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+
+  color: rgb(120, 6, 133);
+  background-color: white;
+}
+
+.btn {
+  min-width: 100px;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+
+  color: rgb(120, 6, 133);
+
+  margin-right: 10px;
+  cursor: pointer;
+}
