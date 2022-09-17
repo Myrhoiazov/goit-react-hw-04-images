@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect, useCallback  } from 'react';
 import Searchbar from './Searchbar';
 import Loader from './Loader';
 import ImageGallery from './ImageGallery';
@@ -10,42 +10,28 @@ import 'react-toastify/dist/ReactToastify.css';
 
 axios.defaults.baseURL = 'https://pixabay.com/api/';
 
-export class App extends Component {
-  state = {
-    gallery: [],
-    loader: false,
-    query: '',
-    page: 1,
-    imgQuery: null,
-    totalImg: null,
-    perPage: 12,
-  };
+export const App = () => {
+  const [gallery, setGallery] = useState([]);
+  const [loader, setLoader] = useState(false);
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [perPage] = useState(12);
+  const [imgQuery, setImgQuery] = useState(null);
+  const [totalImg, setTotalImg] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
-  componentDidUpdate(_, prevState) {
-    if (
-      prevState.page !== this.state.page ||
-      prevState.query !== this.state.query
-    ) {
-      this.serviceApi();
-    }
-  }
-
-  serviceApi = async () => {
-    const { page, query, perPage } = this.state;
-
+  const serviceApi = useCallback(async () => {
     try {
-      this.setState({ loader: true });
+      setLoader(true);
+
       const response = await axios.get(
         `?key=29332963-764ea3ce314f104536083404e&q=${query}&image_type=photo&orientation=horizontal&page=${page}&per_page=${perPage}`
       );
-      this.setState(state => ({
-        gallery:
-          page === 1
-            ? response.data.hits
-            : [...state.gallery, ...response.data.hits],
-        isShow: true,
-        totalImg: response.data.total,
-      }));
+
+      setGallery(state =>
+        page === 1 ? response.data.hits : [...state, ...response.data.hits]
+      );
+      setTotalImg(response.data.total);
 
       if (response.data.total === 0) {
         toast.error('По твоему запросу ничего не найдено');
@@ -53,67 +39,63 @@ export class App extends Component {
     } catch (error) {
       toast.error('Что то пошло не так :(');
     } finally {
-      this.setState({ loader: false });
+      setLoader(false);
     }
+  }, [page, perPage, query]);
+
+
+  const handelSearcheValue = query => {
+    setQuery(query);
+    setPage(1);
   };
 
-  handelSearcheValue = query => {
-    this.setState({ query, page: 1 });
+  const handelClickPage = () => {
+    setPage(state => state + 1);
   };
 
-  handelClickPage = () => {
-    this.setState(state => ({ page: state.page + 1 }));
+  const isShowModal = crs => {
+    setShowModal(state => !state);
+    setImgQuery(crs);
   };
 
-  isShowModal = crs => {
-    this.setState(prevState => ({
-      showModal: !prevState.showModal,
-      imgQuery: crs,
-    }));
-  };
+  useEffect(() => {
+    if (!query) {
+      return;
+    }
+    serviceApi();
 
-  render() {
-    const {
-      gallery,
-      showModal,
-      loader,
-      imgQuery,
-      totalImg,
-      page,
-      perPage,
-      query,
-    } = this.state;
-    const { handelSearcheValue, handelClickPage, isShowModal } = this;
+  }, [page, query, serviceApi]);
 
-    return (
-      <div>
-        <Searchbar onSubmit={handelSearcheValue} />
-        {loader && <Loader />}
-        <ImageGallery
-          gallery={gallery}
-          onLoadMore={handelClickPage}
-          onOpen={isShowModal}
-          total={totalImg}
-          page={page}
-          perPage={perPage}
-        />
-        {showModal && (
-          <Modal onClose={isShowModal}>
-            <img
-              src={imgQuery}
-              alt={query}
-              style={{
-                display: 'block',
-                objectFit: 'cover',
-                maxWidth: '100%',
-                width: '100%',
-                height: '100%',
-              }}
-            />
-          </Modal>
-        )}
-        <ToastContainer />
-      </div>
-    );
-  }
-}
+
+  return (
+    <div>
+      <Searchbar onSubmit={handelSearcheValue} />
+      {loader && <Loader />}
+      <ImageGallery
+        gallery={gallery}
+        onLoadMore={handelClickPage}
+        onOpen={isShowModal}
+        total={totalImg}
+        page={page}
+        perPage={perPage}
+      />
+      {showModal && (
+        <Modal onClose={isShowModal}>
+          <img
+            src={imgQuery}
+            alt={query}
+            style={{
+              display: 'block',
+              objectFit: 'cover',
+              maxWidth: '100%',
+              width: '100%',
+              height: '100%',
+            }}
+          />
+        </Modal>
+      )}
+      <ToastContainer />
+    </div>
+  );
+};
+

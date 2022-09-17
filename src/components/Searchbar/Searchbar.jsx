@@ -1,28 +1,23 @@
-import { Component } from 'react';
+import { useState } from 'react';
 import { toast } from 'react-toastify';
 import style from './Searchbar.module.css';
 
-class Searchbar extends Component {
-  state = {
-    value: '',
+const Searchbar =({onSubmit})=> {
+ const [ value, setValue] = useState('')
+
+  const handleChangeValue = event => {
+    setValue(event.target.value.trim());
   };
 
-  handleChangeValue = event => {
-    this.setState({ value: event.target.value.trim() });
-  };
-
-  onSubmitValue = ev => {
+  const onSubmitValue = ev => {
     ev.preventDefault();
 
-    if (this.state.value === '') {
+    if (value === '') {
       return toast('Ведите свой запрос');
     }
-    this.props.onSubmit(this.state.value);
-  };
 
-  render() {
-    const { value } = this.state;
-    const { handleChangeValue, onSubmitValue } = this;
+    onSubmit(value);
+  };
 
     return (
       <header className={style.searchbar}>
@@ -45,6 +40,5 @@ class Searchbar extends Component {
       </header>
     );
   }
-}
 
 export default Searchbar;

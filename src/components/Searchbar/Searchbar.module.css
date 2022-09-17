@@ -1,4 +1,8 @@
 .searchbar {
+  position: fixed;
+  top: 0;
+  z-index: 1;
+  width: 100%;
   text-align: center;
   background-color: rgb(120, 6, 133);
   padding: 20px;

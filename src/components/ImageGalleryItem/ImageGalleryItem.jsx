@@ -1,7 +1,6 @@
 import style from './ImageGalleryItem.module.css';
 
 const ImageGalleryItem = ({ item, onOpen }) => {
-  console.log(item);
 
   return (
     <>
